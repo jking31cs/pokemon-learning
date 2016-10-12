@@ -47,12 +47,13 @@ public class PokemonListingCache {
             String[] args = line.split("\\t");
             Pokemon pokemon = nameMapping.get(args[3]);
             Set<Type> types = new HashSet<Type>();
-            types.add(TypeMapping.get(TypeEnum.valueOf(args[4].toUpperCase())));
+            Type t1 = TypeMapping.get(TypeEnum.valueOf(args[4].toUpperCase()));
+            Type t2 = null;
             //this means there's a second type
             if (args.length == 6) {
-                types.add(TypeMapping.get(TypeEnum.valueOf(args[5].toUpperCase())));
+                t2  =TypeMapping.get(TypeEnum.valueOf(args[5].toUpperCase()));
             }
-            pokemonWithTypes.add(new PokemonWithTypes(pokemon, types));
+            pokemonWithTypes.add(new PokemonWithTypes(pokemon, t1, t2));
         }
         return pokemonWithTypes;
     }

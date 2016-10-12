@@ -1,5 +1,6 @@
 package com.jking31cs;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 import java.util.Set;
@@ -9,19 +10,30 @@ import java.util.Set;
  */
 public class PokemonWithTypes {
     private final Pokemon pokemon;
-    private final Set<Type> types;
+    private final Type type1;
+    private final Type type2;
 
-    public PokemonWithTypes(Pokemon pokemon, Set<Type> types) {
+    public PokemonWithTypes(
+        Pokemon pokemon,
+        Type type1,
+        Type type2
+
+    ) {
         this.pokemon = pokemon;
-        this.types = types;
+        this.type1 = type1;
+        this.type2 = type2;
     }
 
     public Pokemon getPokemon() {
         return pokemon;
     }
 
-    public Set<Type> getTypes() {
-        return types;
+    public Type getType1() {
+        return type1;
+    }
+
+    public Type getType2() {
+        return type2;
     }
 
     @Override
@@ -39,9 +51,11 @@ public class PokemonWithTypes {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("pokemon", pokemon)
-            .add("types", types)
+            .add("type1", type1)
+            .add("type2", type2)
             .toString();
     }
+
 }

@@ -36,9 +36,13 @@ public class PokemonTeamDriver {
 
                     int score = calculateScore(testTeam);
 
-                    if (score > bestScore) {
+                    if (score > bestScore
+                        || score == bestScore && betterStats(testTeam, bestTeam)) {
                         bestScore = score;
-                        bestTeam = testTeam;
+                        bestTeam = new Team();
+                        bestTeam.p1 = testTeam.p1;
+                        bestTeam.p2 = testTeam.p2;
+                        bestTeam.p3 = testTeam.p3;
                     }
                 }
             }
@@ -46,6 +50,11 @@ public class PokemonTeamDriver {
 
         System.out.println("Best Team: " + bestTeam);
         System.out.println("Best Score: " + bestScore);
+    }
+
+    private static boolean betterStats(Team testTeam, Team bestTeam) {
+        //TODO figure this out.
+        return true;
     }
 
     private static int calculateScore(Team testTeam) {
@@ -56,152 +65,103 @@ public class PokemonTeamDriver {
         Set<TypeEnum> doubleResistances = new HashSet<>();
         Set<TypeEnum> nullifications = new HashSet<>();
 
-        List<Type> typesP1 = Lists.newArrayList(testTeam.p1.getTypes());
-        List<Type> typesP2 = Lists.newArrayList(testTeam.p2.getTypes());
-        List<Type> typesP3 = Lists.newArrayList(testTeam.p3.getTypes());
 
-        Type p1t1 = typesP1.get(0);
-        Type p1t2 = typesP1.size() == 2 ? typesP1.get(1) : null;
-        weaknesses.addAll(p1t1.getWeaknesses());
-        resistances.addAll(p1t1.getResistances());
-        nullifications.addAll(p1t1.getNullifications());
-        if (p1t2 != null) {
-            for (TypeEnum weakness : p1t1.getWeaknesses()) {
-                if (p1t2.getWeaknesses().contains(weakness)) {
-                    //If for some god-forsaken reason we have 2 pokemon with the same double weakness, minus 100 points
-                    if (doubleWeaknesses.contains(weakness)) {
-                        score -= 100;
+        //The goal is to minimize repeated weaknesses and maximize resistances.
+        Set<TypeEnum> p1t1Weaknesses =  testTeam.p1.getType1().getWeaknesses();
+        if (testTeam.p1.getType2() != null) {
+            for (TypeEnum p1t2Weakness : testTeam.p1.getType2().getWeaknesses()) {
+                if (p1t1Weaknesses.contains(p1t2Weakness)) {
+                    doubleWeaknesses.add(p1t2Weakness);
+                }
+            }
+        }
+        weaknesses.addAll(p1t1Weaknesses);
+        if (testTeam.p1.getType2() != null) {
+            weaknesses.addAll(testTeam.p1.getType2().getWeaknesses());
+        }
+        Set<TypeEnum> p2t1Weaknesses =  testTeam.p2.getType1().getWeaknesses();
+        if (testTeam.p2.getType2() != null) {
+            for (TypeEnum p2t2Weakness : testTeam.p2.getType2().getWeaknesses()) {
+                if (p2t1Weaknesses.contains(p2t2Weakness)) {
+                    if (doubleWeaknesses.contains(weaknesses)) {
+                        score -= 10;
                     }
-                    doubleWeaknesses.add(weakness);
-
-
+                    doubleWeaknesses.add(p2t2Weakness);
                 }
             }
-            for (TypeEnum weakness : p1t1.getResistances()) {
-                if (p1t2.getResistances().contains(weakness)) {
-                    doubleResistances.add(weakness);
-                }
-            }
-            weaknesses.addAll(p1t2.getWeaknesses());
-            resistances.addAll(p1t2.getResistances());
-            nullifications.addAll(p1t2.getNullifications());
         }
-
-        Type p2t1 = typesP2.get(0);
-        Type p2t2 = typesP2.size() == 2 ? typesP2.get(1) : null;
-        for (TypeEnum weakness : p2t1.getWeaknesses()) {
-            if (weaknesses.contains(weakness)) {
-                score -= 100; //Don't want repeating weaknesses
-            }
+        weaknesses.addAll(p2t1Weaknesses);
+        if (testTeam.p2.getType2() != null) {
+            weaknesses.addAll(testTeam.p2.getType2().getWeaknesses());
         }
-        weaknesses.addAll(p2t1.getWeaknesses());
-        resistances.addAll(p2t1.getResistances());
-        nullifications.addAll(p2t1.getNullifications());
-        if (p2t2 != null) {
-            for (TypeEnum weakness : p2t1.getWeaknesses()) {
-                if (p2t2.getWeaknesses().contains(weakness)) {
-                    //If for some god-forsaken reason we have 2 pokemon with the same double weakness, minus 100 points
-                    if (doubleWeaknesses.contains(weakness)) {
-                        score -= 100;
+        Set<TypeEnum> p3t1Weaknesses =  testTeam.p3.getType1().getWeaknesses();
+        if (testTeam.p3.getType2() != null) {
+            for (TypeEnum p3t2Weakness : testTeam.p3.getType2().getWeaknesses()) {
+                if (p3t1Weaknesses.contains(p3t2Weakness)) {
+                    if (doubleWeaknesses.contains(weaknesses)) {
+                        score -= 10;
                     }
-                    doubleWeaknesses.add(weakness);
+                    doubleWeaknesses.add(p3t2Weakness);
                 }
             }
-            for (TypeEnum weakness : p2t1.getResistances()) {
-                if (p2t2.getResistances().contains(weakness)) {
-                    doubleResistances.add(weakness);
+        }
+        score -= 12 - weaknesses.size();  //We want a well distributed weakness graph.
+        score -= 3 * doubleWeaknesses.size();
+        weaknesses.addAll(p3t1Weaknesses);
+        if (testTeam.p3.getType2() != null) {
+            weaknesses.addAll(testTeam.p3.getType2().getWeaknesses());
+        }
+        Set<TypeEnum> p1t1Resistances =  testTeam.p1.getType1().getResistances();
+        if (testTeam.p1.getType2() != null) {
+            for (TypeEnum p1t2Resistance : testTeam.p1.getType2().getResistances()) {
+                if (p1t1Resistances.contains(p1t2Resistance)) {
+                    doubleResistances.add(p1t2Resistance);
                 }
             }
-            for (TypeEnum weakness : p2t2.getWeaknesses()) {
-                if (weaknesses.contains(weakness)) {
-                    score -= 100; //Don't want repeating weaknesses
-                }
-            }
-            weaknesses.addAll(p2t2.getWeaknesses());
-            resistances.addAll(p2t2.getResistances());
-            nullifications.addAll(p2t2.getNullifications());
+        }
+        resistances.addAll(p1t1Resistances);
+        nullifications.addAll(testTeam.p1.getType1().getNullifications());
+        if (testTeam.p1.getType2() != null) {
+            resistances.addAll(testTeam.p1.getType2().getResistances());
+            nullifications.addAll(testTeam.p1.getType2().getNullifications());
         }
 
-        Type p3t1 = typesP3.get(0);
-        Type p3t2 = typesP3.size() == 2 ? typesP3.get(1) : null;
-        for (TypeEnum weakness : p3t1.getWeaknesses()) {
-            if (weaknesses.contains(weakness)) {
-                score -= 100; //Don't want repeating weaknesses
+        Set<TypeEnum> p2t1Resistances =  testTeam.p1.getType1().getResistances();
+        if (testTeam.p1.getType2() != null) {
+            for (TypeEnum p1t2Resistance : testTeam.p1.getType2().getResistances()) {
+                if (p1t1Resistances.contains(p1t2Resistance)) {
+                    doubleResistances.add(p1t2Resistance);
+                }
             }
         }
-        weaknesses.addAll(p3t1.getWeaknesses());
-        resistances.addAll(p3t1.getResistances());
-        nullifications.addAll(p3t1.getNullifications());
-        if (p3t2 != null) {
-            for (TypeEnum weakness : p3t1.getWeaknesses()) {
-                if (p3t2.getWeaknesses().contains(weakness)) {
-                    //If for some god-forsaken reason we have 2 pokemon with the same double weakness, minus 100 points
-                    if (doubleWeaknesses.contains(weakness)) {
-                        score -= 100;
-                    }
-                    doubleWeaknesses.add(weakness);
-                }
-            }
-            for (TypeEnum weakness : p3t1.getResistances()) {
-                if (p3t2.getResistances().contains(weakness)) {
-                    doubleResistances.add(weakness);
-                }
-            }
-            weaknesses.addAll(p3t2.getWeaknesses());
-            resistances.addAll(p3t2.getResistances());
-            nullifications.addAll(p3t2.getNullifications());
+        resistances.addAll(p2t1Resistances);
+        nullifications.addAll(testTeam.p2.getType1().getNullifications());
+        if (testTeam.p2.getType2() != null) {
+            resistances.addAll(testTeam.p2.getType2().getResistances());
+            nullifications.addAll(testTeam.p2.getType2().getNullifications());
         }
 
-        //Now to score.
-        score -= 5 * doubleWeaknesses.size();
-        score -= weaknesses.size();
+        Set<TypeEnum> p3t1Resistances =  testTeam.p1.getType1().getResistances();
+        if (testTeam.p1.getType2() != null) {
+            for (TypeEnum p1t2Resistance : testTeam.p1.getType2().getResistances()) {
+                if (p1t1Resistances.contains(p1t2Resistance)) {
+                    doubleResistances.add(p1t2Resistance);
+                }
+            }
+        }
+
+        resistances.addAll(p3t1Resistances);
+        nullifications.addAll(testTeam.p3.getType1().getNullifications());
+        if (testTeam.p3.getType2() != null) {
+            resistances.addAll(testTeam.p3.getType2().getResistances());
+            nullifications.addAll(testTeam.p3.getType2().getNullifications());
+        }
+
         score += resistances.size();
-        score += 2 * doubleResistances.size();
-        score += 3 * nullifications.size();
+        score += 2 * resistances.size();
+        score += 2 * nullifications.size();
 
         return score;
-    }
-
-    /**
-     * Scoring system:
-     * -5 points for each double weakness (really want to avoid that)
-     * -1 point per weakness (bad)
-     * +1 point per resistance (good, will cancel out weakness)
-     * +2 points per double resistance (very good)
-     * +3 points per nullification (best possible)
-     */
-    private static int incrementScore(PokemonWithTypes p1) {
-        Set<TypeEnum> doubleWeakness = new HashSet<>();
-        Set<TypeEnum> doubleResistance = new HashSet<>();
-        ArrayList<Type> types = Lists.newArrayList(p1.getTypes());
-        Type t1 = types.get(0);
-        int score = 0;
-        if (types.size() == 1) {
-            //update score assuming only one type.
-            score += t1.getResistances().size();
-            score += 3 * t1.getNullifications().size();
-            score -= t1.getWeaknesses().size();
-        } else {
-            Type t2 = types.get(1);
-            for (TypeEnum weakness : t1.getWeaknesses()) {
-                if (t2.getWeaknesses().contains(weakness)) {
-                    doubleWeakness.add(weakness);
-                }
-            }
-            for (TypeEnum weakness : t1.getResistances()) {
-                if (t2.getResistances().contains(weakness)) {
-                    doubleResistance.add(weakness);
-                }
-            }
-            score -= 5 * doubleWeakness.size();
-            score -= (t1.getWeaknesses().size() + t2.getWeaknesses().size() - (2 * doubleWeakness.size()));
-            score += t1.getResistances().size() + t2.getResistances().size() - (2 * doubleResistance.size());
-            score += 2 * doubleResistance.size();
-            score += 3 * Sets.union(t1.getNullifications(), t2.getNullifications()).size();
-        }
-
-        return score;
-
     }
 
     private static class Team {
