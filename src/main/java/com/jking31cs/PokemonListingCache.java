@@ -25,7 +25,7 @@ public class PokemonListingCache {
     }
 
     private List<PokemonWithTypes> buildCache() throws IOException {
-        Scanner scanner = new Scanner(new File("pokemon-listing.txt"));
+        Scanner scanner = new Scanner(new File("data/pokemon-listing.txt"));
         Map<String, Pokemon> nameMapping = new HashMap<String, Pokemon>(151);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
@@ -40,7 +40,7 @@ public class PokemonListingCache {
             );
             nameMapping.put(pokemon.getName(), pokemon);
         }
-        scanner = new Scanner(new File("pokemon-type-listing.txt"));
+        scanner = new Scanner(new File("data/pokemon-type-listing.txt"));
         List<PokemonWithTypes> pokemonWithTypes = new ArrayList<PokemonWithTypes>(151);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();

@@ -19,5 +19,5 @@ public enum TypeEnum {
     ELECTRIC,
     PSYCHIC,
     ICE,
-    DRAGON;
+    DRAGON
 }
