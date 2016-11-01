@@ -97,6 +97,14 @@ public class Edge {
             return new MoveAction(Optional.of(move), Optional.<PokemonStatus>absent());
         }
 
+        public Optional<Move> getMove() {
+            return move;
+        }
+
+        public Optional<PokemonStatus> getpSwitch() {
+            return pSwitch;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
