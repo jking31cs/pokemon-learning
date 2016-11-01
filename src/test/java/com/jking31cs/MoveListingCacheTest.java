@@ -1,6 +1,8 @@
 package com.jking31cs;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -11,6 +13,10 @@ public class MoveListingCacheTest {
 
     @Test
     public void testCreateMoveListingCache() throws IOException {
-        System.out.println(new MoveListingCache().pokemonMoveSetsMapping);
+        Map<String, List<Move>> mapping = MoveListingCache.get();
+        List<Move> pikachu = mapping.get("Bulbasaur");
+        for(Move m : pikachu) {
+            System.out.println(m);
+        }
     }
 }
