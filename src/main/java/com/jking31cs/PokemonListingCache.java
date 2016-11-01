@@ -11,20 +11,20 @@ public class PokemonListingCache {
 
     private static PokemonListingCache instance;
 
-    public static List<PokemonWithTypes> getAll() throws IOException {
+    public static Map<String, PokemonWithTypes> getAll() throws IOException {
         if (instance == null) {
             instance = new PokemonListingCache();
         }
         return instance.pokemonCache;
     }
 
-    private final List<PokemonWithTypes> pokemonCache;
+    private final Map<String, PokemonWithTypes> pokemonCache;
 
     private PokemonListingCache() throws IOException {
         this.pokemonCache = buildCache();
     }
 
-    private List<PokemonWithTypes> buildCache() throws IOException {
+    private Map<String, PokemonWithTypes> buildCache() throws IOException {
         Scanner scanner = new Scanner(new File("data/pokemon-listing.txt"));
         Map<String, Pokemon> nameMapping = new HashMap<String, Pokemon>(151);
         while (scanner.hasNextLine()) {
@@ -41,7 +41,7 @@ public class PokemonListingCache {
             nameMapping.put(pokemon.getName(), pokemon);
         }
         scanner = new Scanner(new File("data/pokemon-type-listing.txt"));
-        List<PokemonWithTypes> pokemonWithTypes = new ArrayList<PokemonWithTypes>(151);
+        Map<String, PokemonWithTypes> pokemonWithTypes = new HashMap<>(151);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String[] args = line.split("\\t");
@@ -53,7 +53,7 @@ public class PokemonListingCache {
             if (args.length == 6) {
                 t2  =TypeMapping.get(TypeEnum.valueOf(args[5].toUpperCase()));
             }
-            pokemonWithTypes.add(new PokemonWithTypes(pokemon, t1, t2));
+            pokemonWithTypes.put(pokemon.getName(), new PokemonWithTypes(pokemon, t1, t2));
         }
         return pokemonWithTypes;
     }

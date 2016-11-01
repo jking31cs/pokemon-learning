@@ -18,7 +18,7 @@ public class PokemonTeamDriver {
     public static void main(String[] args) throws IOException {
         int bestScore = Integer.MIN_VALUE;
 
-        List<PokemonWithTypes> pokemonWithTypes = PokemonListingCache.getAll();
+        List<PokemonWithTypes> pokemonWithTypes = new ArrayList<>(PokemonListingCache.getAll().values());
         Team bestTeam = null;
         for (int i = 0; i < pokemonWithTypes.size() - 2; i++) {
             Team testTeam = new Team();

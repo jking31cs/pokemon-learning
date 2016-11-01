@@ -9,3 +9,7 @@ Right now, it doesn't include library jars in the class path, but that's easy to
 
 ##Goals
 Our goal is to analysis Pokemon stats and movesets to form the ultimate team, then have it learn how to win using reinforcement learning.
+
+####TODO
+Set up DB with tables for state packages
+Add in logic, now that state classes are defined.

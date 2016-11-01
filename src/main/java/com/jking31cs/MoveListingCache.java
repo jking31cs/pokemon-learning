@@ -16,6 +16,10 @@ public class MoveListingCache {
 
     final Map<String, List<Move>> pokemonMoveSetsMapping;
 
+    public static Map<String, List<Move>> getMoveSets() throws IOException {
+        return new MoveListingCache().pokemonMoveSetsMapping;
+    }
+
     MoveListingCache() throws IOException {
         this.pokemonMoveSetsMapping = new HashMap<>();
         populate();
