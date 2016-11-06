@@ -1,5 +1,9 @@
 package com.jking31cs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.jking31cs.state.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -7,15 +11,6 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jking31cs.state.BattleTree;
-import com.jking31cs.state.Edge;
-import com.jking31cs.state.PokemonStatus;
-import com.jking31cs.state.State;
-import com.jking31cs.state.Team;
-import com.jking31cs.state.TeamStatus;
 
 /**
  * Testing BattleTree Idea.
@@ -26,6 +21,8 @@ public class MainDriver {
 
     static Map<String, PokemonWithTypes> allPokemon;
     static Map<String, List<Move>> moveSets;
+
+    static double thresholdDamagePercent = .2d;
     public static void main(String[] args) throws IOException {
         allPokemon = PokemonListingCache.getAll();
         moveSets = MoveListingCache.getMoveSets();
@@ -68,157 +65,254 @@ public class MainDriver {
         Queue<State> stateQueue = new ArrayDeque<>();
         stateQueue.add(initState);
 
+        boolean speedTie = true;
         while (!stateQueue.isEmpty()) {
             State currentState = stateQueue.poll();
-            if (currentState.isEndState()) {
-                continue;
-            }
-            PokemonStatus curp1 = currentState.getP1Status();
-            PokemonStatus curp2 = currentState.getP2Status();
-            PokemonStatus newP1 = null;
-            PokemonStatus newP2 = null;
+            if (currentState.isEndState()) continue;
+            //The goal here is to determine the move for each pokemon that does the most damage to the opponent.
+            PokemonStatus p1Status = currentState.getP1Status();
+            PokemonStatus p2Status = currentState.getP2Status();
             TeamStatus curT1Status = currentState.getT1Status();
             TeamStatus curT2Status = currentState.getT2Status();
-            TeamStatus newT1Status = null;
-            TeamStatus newT2Status = null;
-            boolean isEndState = false;
-
-            for (Move m1 : moveSets.get(currentState.getP1Status().getName())) {
-                for (Move m2 : moveSets.get(currentState.getP2Status().getName())) {
-
-                    //First, compare speeds to see who goes first.
-                    if (allPokemon.get(curp1.getName()).getPokemon().getSpeed()
-                            > allPokemon.get(curp2.getName()).getPokemon().getSpeed()) {
-                        //Do the attacks from each side if possible.
-                        newP2 = updateStatus(curp1, curp2, m1);
-                        if (newP2.getCurrentHP() > 0) {
-                            newP1 = updateStatus(curp2, curp1, m2);
-                        } else {
-                            newP1 = new PokemonStatus(
-                                    randomId(),
-                                    curp1.getName(),
-                                    curp1.getCurrentHP()
-                            );
-                        }
-                    } else {
-                        //Same as above, but in opposite order
-                        newP1 = updateStatus(curp2, curp1, m2);
-                        if (newP1.getCurrentHP() > 0) {
-                            newP2 = updateStatus(curp1, curp2, m1);
-                        } else {
-                            newP2 = new PokemonStatus(
-                                    randomId(),
-                                    curp2.getName(),
-                                    curp2.getCurrentHP()
-                            );
-                        }
-                    }
-
-                    //If no damage is done by either pokemon, we will hit a deadlock.  This should prevent it.
-                    if (newP1.getCurrentHP() == curp1.getCurrentHP() && newP2.getCurrentHP() == curp2.getCurrentHP()) {
-                        continue;
-                    }
-
-                    //Update Team Status
-                    if (curT1Status.getP1().getId() == curp1.getId()) {
-                        newT1Status = new TeamStatus(
-                                randomId(),
-                                newP1,
-                                curT1Status.getP2(),
-                                curT1Status.getP3()
-                        );
-                    } else if (curT1Status.getP2().getId() == curp1.getId()) {
-                        newT1Status = new TeamStatus(
-                                randomId(),
-                                curT1Status.getP1(),
-                                newP1,
-                                curT1Status.getP3()
-                        );
-                    } else if (curT1Status.getP3().getId() == curp1.getId()) {
-                        newT1Status = new TeamStatus(
-                                randomId(),
-                                curT1Status.getP1(),
-                                curT1Status.getP2(),
-                                newP1
-                        );
-                    }
-
-                    if (curT2Status.getP1().getId() == curp2.getId()) {
-                        newT2Status = new TeamStatus(
-                                randomId(),
-                                newP2,
-                                curT2Status.getP2(),
-                                curT2Status.getP3()
-                        );
-                    } else if (curT2Status.getP2().getId() == curp2.getId()) {
-                        newT2Status = new TeamStatus(
-                                randomId(),
-                                curT2Status.getP1(),
-                                newP2,
-                                curT2Status.getP3()
-                        );
-                    } else if (curT2Status.getP3().getId() == curp2.getId()) {
-                        newT2Status = new TeamStatus(
-                                randomId(),
-                                curT2Status.getP1(),
-                                curT2Status.getP2(),
-                                newP2
-                        );
-                    }
-
-                    //Switch out dead pokemon
-                    if (newP1.getCurrentHP() <= 0) {
-                        if (t1Status.getP1().getId() != curp1.getId() && t1Status.getP1().getCurrentHP() > 0) {
-                            newP1 = t1Status.getP1();
-                        } else if (t1Status.getP2().getId() != curp2.getId() && t1Status.getP2().getCurrentHP() > 0) {
-                            newP1 = t1Status.getP2();
-                        } else if (t1Status.getP3().getId() != curp2.getId() && t1Status.getP3().getCurrentHP() > 0) {
-                            newP1 = t1Status.getP3();
-                        } else {
-                            isEndState = true;
-                        }
-                    }
-
-                    if (newP2.getCurrentHP() <= 0) {
-                        if (t2Status.getP1().getId() != curp2.getId() && t2Status.getP1().getCurrentHP() > 0) {
-                            newP2 = t2Status.getP1();
-                        } else if (t2Status.getP2().getId() != curp2.getId() && t2Status.getP2().getCurrentHP() > 0) {
-                            newP2 = t2Status.getP2();
-                        } else if (t2Status.getP3().getId() != curp2.getId() && t2Status.getP3().getCurrentHP() > 0) {
-                            newP2 = t2Status.getP3();
-                        } else {
-                            isEndState = true;
-                        }
-                    }
-
-                    //Now create a new State.
-                    State newState = new State(
-                            randomId(),
-                            currentState.getT1(),
-                            currentState.getT2(),
-                            newT1Status,
-                            newT2Status,
-                            newP1,
-                            newP2,
-                            isEndState,
-                            false
-                    );
-                    battleTree.states.put(newState.getId(), newState);
-                    stateQueue.add(newState);
-                    Edge newEdge = new Edge(
-                            randomId(),
-                            currentState,
-                            newState,
-                            Edge.MoveAction.move(m1),
-                            Edge.MoveAction.move(m2)
-                    );
-                    battleTree.edges.put(newEdge.getId(), newEdge);
+            Pokemon pokemon1 = allPokemon.get(p1Status.getName()).getPokemon();
+            Pokemon pokemon2 = allPokemon.get(p2Status.getName()).getPokemon();
+            double damage1 = 0;
+            double minDamageNeeded1 =
+                Math.min(pokemon2.getHp() * thresholdDamagePercent,
+                    p2Status.getCurrentHP());
+            Move move1 = null;
+            double damage2 = 0;
+            Move move2 = null;
+            double minDamageNeeded2 =
+                Math.min(pokemon1.getHp() * thresholdDamagePercent,
+                    p1Status.getCurrentHP());
+            for (Move m1 : moveSets.get(p1Status.getName())) {
+                double damageDealt = damageDealt(p1Status, p2Status, m1);
+                if (damage1 < damageDealt) {
+                    damage1 = damageDealt;
+                    move1 = m1;
                 }
             }
-            if (stateQueue.size() > 100000) {
-                System.out.println("That's too big.");
-                break;
+            for (Move m2 : moveSets.get(p2Status.getName())) {
+                double damageDealt = damageDealt(p2Status, p1Status, m2);
+                if (damage2 < damageDealt) {
+                    damage2 = damageDealt;
+                    move2 = m2;
+                }
             }
+            boolean switch1 = false;
+            boolean switch2 = false;
+            Edge.MoveAction moveAction1 = Edge.MoveAction.move(move1);
+            PokemonStatus temp1 = new PokemonStatus(
+                p1Status.getId(),
+                p1Status.getName(),
+                p1Status.getCurrentHP()
+            );
+            PokemonStatus temp2 = new PokemonStatus(
+                p2Status.getId(),
+                p2Status.getName(),
+                p2Status.getCurrentHP()
+            );
+            if (damage1 < minDamageNeeded1) {
+                int minDamageDealt = Integer.MAX_VALUE;
+                if (curT1Status.getP1().getId() != temp1.getId()
+                    && damageDealt(p2, curT1Status.getP1(), move2) < minDamageDealt
+                    && curT1Status.getP1().getCurrentHP() > 0) {
+                    damage1 = 0;
+                    switch1 = true;
+                    moveAction1 = Edge.MoveAction.switchTo(curT1Status.getP1());
+                    p1Status = curT1Status.getP1();
+                }
+                if (curT1Status.getP2().getId() != temp1.getId()
+                    && damageDealt(p2, curT1Status.getP2(), move2) < minDamageDealt
+                    && curT1Status.getP2().getCurrentHP() > 0) {
+                    damage1 = 0;
+                    switch1 = true;
+                    moveAction1 = Edge.MoveAction.switchTo(curT1Status.getP2());
+                    p1Status = curT1Status.getP2();
+                }
+                if (curT1Status.getP3().getId() != temp1.getId()
+                    && damageDealt(p2, curT1Status.getP3(), move2) < minDamageDealt
+                    && curT1Status.getP3().getCurrentHP() > 0) {
+                    damage1 = 0;
+                    switch1 = true;
+                    moveAction1 = Edge.MoveAction.switchTo(curT1Status.getP3());
+                    p1Status = curT1Status.getP3();
+                }
+            }
+            Edge.MoveAction moveAction2 = Edge.MoveAction.move(move2);
+            if (damage2 < minDamageNeeded2) {
+                int minDamageDealt = Integer.MAX_VALUE;
+                if (curT2Status.getP1().getId() != temp2.getId()
+                    && damageDealt(p1, curT2Status.getP1(), move1) < minDamageDealt
+                    && curT2Status.getP1().getCurrentHP() > 0) {
+                    damage2 = 0;
+                    switch2 = true;
+                    moveAction2 = Edge.MoveAction.switchTo(curT2Status.getP1());
+                    p2Status = curT2Status.getP1();
+                }
+                if (curT2Status.getP2().getId() != temp2.getId()
+                    && damageDealt(p1, curT2Status.getP2(), move1) < minDamageDealt
+                    && curT2Status.getP2().getCurrentHP() > 0) {
+                    damage2 = 0;
+                    switch2 = true;
+                    moveAction1 = Edge.MoveAction.switchTo(curT2Status.getP2());
+                    p2Status = curT2Status.getP2();
+                }
+                if (curT2Status.getP3().getId() != temp2.getId()
+                    && damageDealt(p1, curT2Status.getP3(), move1) < minDamageDealt
+                    && curT2Status.getP3().getCurrentHP() > 0) {
+                    damage2 = 0;
+                    switch2 = true;
+                    moveAction1 = Edge.MoveAction.switchTo(curT2Status.getP3());
+                    p2Status = curT2Status.getP3();
+                }
+            }
+
+            //Now that we know the damage rolls, let's create a new state.
+            PokemonStatus newP1Status = null;
+            PokemonStatus newP2Status = null;
+            TeamStatus newT1Status = null;
+            TeamStatus newT2Status = null;
+
+            //First apply damage per speed rules.
+            if (pokemon1.getSpeed() > pokemon2.getSpeed() || (pokemon1.getSpeed() == pokemon2.getSpeed() && speedTie)) {
+                speedTie = !speedTie;
+                newP2Status = new PokemonStatus(
+                    randomId(),
+                    p2Status.getName(),
+                    (int) (p2Status.getCurrentHP() - damage1)
+                );
+                if (newP2Status.getCurrentHP() > 0) {
+                    newP1Status = new PokemonStatus(
+                        randomId(),
+                        p1Status.getName(),
+                        (int) (p1Status.getCurrentHP() - damage2)
+                    );
+                } else {
+                    newP1Status = new PokemonStatus(
+                        randomId(),
+                        p1Status.getName(),
+                        p1Status.getCurrentHP()
+                    );
+                }
+            } else {
+                speedTie = !speedTie;
+                newP1Status = new PokemonStatus(
+                    randomId(),
+                    p1Status.getName(),
+                    (int) (p1Status.getCurrentHP() - damage2)
+                );
+                if (newP1Status.getCurrentHP() > 0) {
+                    newP2Status = new PokemonStatus(
+                        randomId(),
+                        p2Status.getName(),
+                        (int) (p2Status.getCurrentHP() - damage1)
+                    );
+                } else {
+                    newP2Status = new PokemonStatus(
+                        randomId(),
+                        p2Status.getName(),
+                        p2Status.getCurrentHP()
+                    );
+                }
+            }
+
+            //Update Team Status
+            if (curT1Status.getP1().getId() == p1Status.getId()) {
+                newT1Status = new TeamStatus(
+                    randomId(),
+                    newP1Status,
+                    curT1Status.getP2(),
+                    curT1Status.getP3()
+                );
+            } else if (curT1Status.getP2().getId() == p1Status.getId()) {
+                newT1Status = new TeamStatus(
+                    randomId(),
+                    curT1Status.getP1(),
+                    newP1Status,
+                    curT1Status.getP3()
+                );
+            } else if (curT1Status.getP3().getId() == p1Status.getId()) {
+                newT1Status = new TeamStatus(
+                    randomId(),
+                    curT1Status.getP1(),
+                    curT1Status.getP2(),
+                    newP1Status
+                );
+            }
+
+            if (curT2Status.getP1().getId() == p2Status.getId()) {
+                newT2Status = new TeamStatus(
+                    randomId(),
+                    newP2Status,
+                    curT2Status.getP2(),
+                    curT2Status.getP3()
+                );
+            } else if (curT2Status.getP2().getId() == p2Status.getId()) {
+                newT2Status = new TeamStatus(
+                    randomId(),
+                    curT2Status.getP1(),
+                    newP2Status,
+                    curT2Status.getP3()
+                );
+            } else if (curT2Status.getP3().getId() == p2Status.getId()) {
+                newT2Status = new TeamStatus(
+                    randomId(),
+                    curT2Status.getP1(),
+                    curT2Status.getP2(),
+                    newP2Status
+                );
+            }
+
+            //Switch out dead pokemon
+            boolean isEndState = false;
+            if (newP1Status.getCurrentHP() <= 0) {
+                if (t1Status.getP1().getId() != p1Status.getId() && newT1Status.getP1().getCurrentHP() > 0) {
+                    newP1Status = newT1Status.getP1();
+                } else if (t1Status.getP2().getId() != p1Status.getId() && newT1Status.getP2().getCurrentHP() > 0) {
+                    newP1Status = newT1Status.getP2();
+                } else if (t1Status.getP3().getId() != p1Status.getId() && newT1Status.getP3().getCurrentHP() > 0) {
+                    newP1Status = newT1Status.getP3();
+                } else {
+                    isEndState = true;
+                }
+            }
+
+            if (newP2Status.getCurrentHP() <= 0) {
+                if (t2Status.getP1().getId() != p2Status.getId() && newT2Status.getP1().getCurrentHP() > 0) {
+                    newP2Status = newT2Status.getP1();
+                } else if (t2Status.getP2().getId() != p2Status.getId() && newT2Status.getP2().getCurrentHP() > 0) {
+                    newP2Status = newT2Status.getP2();
+                } else if (t2Status.getP3().getId() != p2Status.getId() && newT2Status.getP3().getCurrentHP() > 0) {
+                    newP2Status = newT2Status.getP3();
+                } else {
+                    isEndState = true;
+                }
+            }
+
+            //Now create a new State.
+            State newState = new State(
+                randomId(),
+                currentState.getT1(),
+                currentState.getT2(),
+                newT1Status,
+                newT2Status,
+                newP1Status,
+                newP2Status,
+                isEndState,
+                false
+            );
+            battleTree.states.put(newState.getId(), newState);
+            stateQueue.add(newState);
+            Edge newEdge = new Edge(
+                randomId(),
+                currentState,
+                newState,
+                moveAction1,
+                moveAction2
+            );
+            battleTree.edges.put(newEdge.getId(), newEdge);
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -248,27 +342,21 @@ public class MainDriver {
     }
 
     //Assuming min damage for ease of analysis
-    private static PokemonStatus updateStatus (PokemonStatus attacker, PokemonStatus defender, Move move) {
+    private static double damageDealt (PokemonStatus attacker, PokemonStatus defender, Move move) {
         //((200/7)*Attack\Special*MoveAttack)/Defense\Special)/50)+2)*STAB)*TypeModifier/10)*217)/255
 
         PokemonWithTypes attackerPokemon = allPokemon.get(attacker.getName());
         PokemonWithTypes defenderPokemon = allPokemon.get(defender.getName());
         boolean isSpecial = move.isSpecial();
-        double attackPortion = (200d/7d) * (isSpecial ? attackerPokemon.getPokemon().getSpecial() : attackerPokemon.getPokemon().getAttack())
-                * move.getPower();
-        double defensePortion = 1d * (isSpecial ? defenderPokemon.getPokemon().getSpecial() : defenderPokemon.getPokemon().getDefense());
+        double attackDefensePortion = isSpecial
+            ? (1.0d * attackerPokemon.getPokemon().getSpecial() / defenderPokemon.getPokemon().getSpecial())
+            : (1.0d * attackerPokemon.getPokemon().getAttack() / defenderPokemon.getPokemon().getDefense());
         boolean isStab = attackerPokemon.getType1().getName() == move.getType();
         if (attackerPokemon.getType2() != null) {
             isStab = isStab || attackerPokemon.getType2().getName() == move.getType();
         }
 
-        double damage = ((((attackPortion / defensePortion) + 2) * (isStab ? 1.5 : 1) * (calculateTypeModifier(defenderPokemon, move) / 10)) * 217) / 255;
-
-        return new PokemonStatus(
-                randomId(),
-                defender.getName(),
-                defender.getCurrentHP() - ((int) (damage + .5d))
-        );
+        return ((125d/250d) * (attackDefensePortion) * move.getPower() + 2) * (isStab ? 1.5 : 1) * calculateTypeModifier(defenderPokemon, move);
     }
 
     private static double calculateTypeModifier(PokemonWithTypes defender, Move move) {
@@ -292,6 +380,6 @@ public class MainDriver {
         if (has2Type && defender.getType1().getNullifications().contains(move.getType())) {
             modifier = modifier * 0;
         }
-        return modifier;
+        return modifier * .85;
     }
 }
