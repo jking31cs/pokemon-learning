@@ -6,19 +6,19 @@ import com.google.common.base.Objects;
  * Represents a team.  We only need the name to look up their stats  from our cache.
  */
 public class Team {
-    private final long id;
+    private final String id;
     private final String p1;
     private final String p2;
     private final String p3;
 
-    public Team(long id, String p1, String p2, String p3) {
+    public Team(String id, String p1, String p2, String p3) {
         this.id = id;
         this.p1 = p1;
         this.p2 = p2;
         this.p3 = p3;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -39,7 +39,7 @@ public class Team {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Team team = (Team) o;
-        return id == team.id &&
+        return java.util.Objects.equals(id, team.id) &&
             Objects.equal(p1, team.p1) &&
             Objects.equal(p2, team.p2) &&
             Objects.equal(p3, team.p3);

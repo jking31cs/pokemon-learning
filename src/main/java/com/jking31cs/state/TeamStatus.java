@@ -6,19 +6,19 @@ import com.google.common.base.Objects;
  * Represents a list of pokemon statuses for each pokemon on the team.
  */
 public class TeamStatus {
-    private final long id;
+    private final String id;
     private final PokemonStatus p1;
     private final PokemonStatus p2;
     private final PokemonStatus p3;
 
-    public TeamStatus(long id, PokemonStatus p1, PokemonStatus p2, PokemonStatus p3) {
+    public TeamStatus(String id, PokemonStatus p1, PokemonStatus p2, PokemonStatus p3) {
         this.id = id;
         this.p1 = p1;
         this.p2 = p2;
         this.p3 = p3;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -36,18 +36,35 @@ public class TeamStatus {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TeamStatus that = (TeamStatus) o;
-        return id == that.id &&
-            Objects.equal(p1, that.p1) &&
-            Objects.equal(p2, that.p2) &&
-            Objects.equal(p3, that.p3);
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TeamStatus status = (TeamStatus) o;
+
+        if (id != null ? !id.equals(status.id) : status.id != null) {
+            return false;
+        }
+        if (p1 != null ? !p1.equals(status.p1) : status.p1 != null) {
+            return false;
+        }
+        if (p2 != null ? !p2.equals(status.p2) : status.p2 != null) {
+            return false;
+        }
+        return p3 != null ? p3.equals(status.p3) : status.p3 == null;
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, p1, p2, p3);
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (p1 != null ? p1.hashCode() : 0);
+        result = 31 * result + (p2 != null ? p2.hashCode() : 0);
+        result = 31 * result + (p3 != null ? p3.hashCode() : 0);
+        return result;
     }
 
     @Override

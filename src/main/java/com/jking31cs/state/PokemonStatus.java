@@ -6,17 +6,17 @@ import com.google.common.base.Objects;
  * Represents a change in status for a pokemon, for now only keeps track of the hp.
  */
 public class PokemonStatus {
-    private final long id;
+    private final String id;
     private final String name;
     private final int currentHP;
 
-    public PokemonStatus(long id, String name, int currentHP) {
+    public PokemonStatus(String id, String name, int currentHP) {
         this.id = id;
         this.name = name;
         this.currentHP = currentHP;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -30,17 +30,31 @@ public class PokemonStatus {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         PokemonStatus that = (PokemonStatus) o;
-        return id == that.id &&
-            currentHP == that.currentHP &&
-            Objects.equal(name, that.name);
+
+        if (currentHP != that.currentHP) {
+            return false;
+        }
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        return name != null ? name.equals(that.name) : that.name == null;
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, name, currentHP);
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + currentHP;
+        return result;
     }
 
     @Override

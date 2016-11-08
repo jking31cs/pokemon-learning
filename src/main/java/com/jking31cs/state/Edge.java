@@ -8,7 +8,7 @@ import com.jking31cs.Move;
  * Represents actions made by each team as a to another state.
  */
 public class Edge {
-    private final long id;
+    private final String id;
     private final State prevState;
     private final State nextState;
 
@@ -16,7 +16,7 @@ public class Edge {
     private final MoveAction p2Move;
 
     public Edge(
-        long id,
+        String id,
         State prevState,
         State nextState,
         MoveAction p1Move,
@@ -29,7 +29,7 @@ public class Edge {
         this.p2Move = p2Move;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -45,25 +45,45 @@ public class Edge {
         return p1Move;
     }
 
-    public MoveAction getP2Move() {
-        return p2Move;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         Edge edge = (Edge) o;
-        return id == edge.id &&
-            Objects.equal(prevState, edge.prevState) &&
-            Objects.equal(nextState, edge.nextState) &&
-            Objects.equal(p1Move, edge.p1Move) &&
-            Objects.equal(p2Move, edge.p2Move);
+
+        if (id != null ? !id.equals(edge.id) : edge.id != null) {
+            return false;
+        }
+        if (prevState != null ? !prevState.equals(edge.prevState) : edge.prevState != null) {
+            return false;
+        }
+        if (nextState != null ? !nextState.equals(edge.nextState) : edge.nextState != null) {
+            return false;
+        }
+        if (p1Move != null ? !p1Move.equals(edge.p1Move) : edge.p1Move != null) {
+            return false;
+        }
+        return p2Move != null ? p2Move.equals(edge.p2Move) : edge.p2Move == null;
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, prevState, nextState, p1Move, p2Move);
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (prevState != null ? prevState.hashCode() : 0);
+        result = 31 * result + (nextState != null ? nextState.hashCode() : 0);
+        result = 31 * result + (p1Move != null ? p1Move.hashCode() : 0);
+        result = 31 * result + (p2Move != null ? p2Move.hashCode() : 0);
+        return result;
+    }
+
+    public MoveAction getP2Move() {
+        return p2Move;
     }
 
     @Override
@@ -95,6 +115,10 @@ public class Edge {
 
         public static MoveAction move(Move move) {
             return new MoveAction(Optional.of(move), Optional.<PokemonStatus>absent());
+        }
+
+        public static MoveAction waitTurn() {
+            return new MoveAction(Optional.absent(), Optional.absent());
         }
 
         public Optional<Move> getMove() {

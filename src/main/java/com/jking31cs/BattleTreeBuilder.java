@@ -1,45 +1,32 @@
 package com.jking31cs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.jking31cs.state.*;
-
-import java.io.File;
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import com.jking31cs.state.BattleTree;
+import com.jking31cs.state.Edge;
+import com.jking31cs.state.PokemonStatus;
+import com.jking31cs.state.State;
+import com.jking31cs.state.Team;
+import com.jking31cs.state.TeamStatus;
+
+import static com.jking31cs.IdGenerator.randomId;
+
 /**
  * Testing BattleTree Idea.
- *
- * TODO DON'T RUN THIS, IT'LL CREATE A BIG FILE.
  */
-public class MainDriver {
+public class BattleTreeBuilder {
 
     static Map<String, PokemonWithTypes> allPokemon;
     static Map<String, List<Move>> moveSets;
 
     static double thresholdDamagePercent = .2d;
-    public static void main(String[] args) throws IOException {
+    public static BattleTree createBattleTree(Team t1, Team t2) throws IOException {
         allPokemon = PokemonListingCache.getAll();
         moveSets = MoveListingCache.getMoveSets();
-
-        Team t1 = new Team(
-                randomId(),
-                "Blastoise",
-                "Charizard",
-                "Venusaur"
-        );
-
-        Team t2 = new Team(
-                randomId(),
-                "Poliwrath",
-                "Jynx",
-                "Gengar"
-        );
 
         TeamStatus t1Status = getInitStatus(t1);
         TeamStatus t2Status = getInitStatus(t2);
@@ -60,13 +47,22 @@ public class MainDriver {
         );
 
         BattleTree battleTree = new BattleTree();
-        battleTree.states.put(initState.getId(), initState);
-
+        battleTree.addState(initState);
+        battleTree.initialStateId = initState.getId();
         Queue<State> stateQueue = new ArrayDeque<>();
         stateQueue.add(initState);
 
         boolean speedTie = true;
+        Edge prevEdge = null;
+        boolean hasRepeated1 = true;
+        boolean hasRepeated2 = true;
+        boolean mustWait1 = false;
+        boolean mustWait2 = false;
+        boolean isSecondTurn1 = false;
+        boolean isSecondTurn2 = false;
         while (!stateQueue.isEmpty()) {
+            boolean notUsingRepeatedMove1 = true;
+            boolean notUsingRepeatedMove2 = true;
             State currentState = stateQueue.poll();
             if (currentState.isEndState()) continue;
             //The goal here is to determine the move for each pokemon that does the most damage to the opponent.
@@ -103,6 +99,52 @@ public class MainDriver {
             boolean switch1 = false;
             boolean switch2 = false;
             Edge.MoveAction moveAction1 = Edge.MoveAction.move(move1);
+            Edge.MoveAction moveAction2 = Edge.MoveAction.move(move2);
+            boolean canSwitch1 = true;
+            if (prevEdge != null && prevEdge.getP1Move().getMove().isPresent() &&
+                    SpecialMoves.repeatMoves.contains(prevEdge.getP1Move().getMove().get().getName())
+                    && !hasRepeated1) {
+                moveAction1 = Edge.MoveAction.move(prevEdge.getP1Move().getMove().get());
+                hasRepeated1 = true;
+                damage1 = damageDealt(p1Status, p2Status, prevEdge.getP1Move().getMove().get());
+                canSwitch1 = false;
+                notUsingRepeatedMove1 = false;
+            }
+            if (mustWait1) {
+                damage1 = 0;
+                canSwitch1 = false;
+                moveAction1 = Edge.MoveAction.waitTurn();
+                mustWait1 = false;
+            }
+            if (SpecialMoves.secondTurnMoves.contains(move1.getName())) {
+                damage1 = 0;
+                canSwitch1 = false;
+                moveAction1 = Edge.MoveAction.waitTurn();
+                isSecondTurn1 = true;
+            }
+            boolean canSwitch2 = true;
+            if (prevEdge != null && prevEdge.getP2Move().getMove().isPresent() &&
+                    SpecialMoves.repeatMoves.contains(prevEdge.getP2Move().getMove().get().getName())
+                    && !hasRepeated2) {
+                moveAction2 = Edge.MoveAction.move(prevEdge.getP2Move().getMove().get());
+                hasRepeated2 = true;
+                damage2 = damageDealt(p2Status, p1Status, prevEdge.getP2Move().getMove().get());
+                canSwitch2 = false;
+                notUsingRepeatedMove2 = false;
+            }
+            if (mustWait2) {
+                damage2 = 0;
+                canSwitch2 = false;
+                moveAction2 = Edge.MoveAction.waitTurn();
+                mustWait2 = false;
+            }
+            if (SpecialMoves.secondTurnMoves.contains(move2.getName())) {
+                damage2 = 0;
+                canSwitch2 = false;
+                moveAction2 = Edge.MoveAction.waitTurn();
+                isSecondTurn2 = true;
+            }
+
             PokemonStatus temp1 = new PokemonStatus(
                 p1Status.getId(),
                 p1Status.getName(),
@@ -113,7 +155,7 @@ public class MainDriver {
                 p2Status.getName(),
                 p2Status.getCurrentHP()
             );
-            if (damage1 < minDamageNeeded1) {
+            if (canSwitch1 && damage1 < minDamageNeeded1) {
                 int minDamageDealt = Integer.MAX_VALUE;
                 if (curT1Status.getP1().getId() != temp1.getId()
                     && damageDealt(p2, curT1Status.getP1(), move2) < minDamageDealt
@@ -140,8 +182,7 @@ public class MainDriver {
                     p1Status = curT1Status.getP3();
                 }
             }
-            Edge.MoveAction moveAction2 = Edge.MoveAction.move(move2);
-            if (damage2 < minDamageNeeded2) {
+            if (canSwitch2 && damage2 < minDamageNeeded2) {
                 int minDamageDealt = Integer.MAX_VALUE;
                 if (curT2Status.getP1().getId() != temp2.getId()
                     && damageDealt(p1, curT2Status.getP1(), move1) < minDamageDealt
@@ -291,6 +332,20 @@ public class MainDriver {
                 }
             }
 
+
+            if (SpecialMoves.repeatMoves.contains(move1.getName()) && notUsingRepeatedMove1) {
+                hasRepeated1 = false;
+            }
+            if (SpecialMoves.firstTurnMoves.contains(move1.getName())) {
+                mustWait1 = true;
+            }
+            if (SpecialMoves.repeatMoves.contains(move2.getName()) && notUsingRepeatedMove2) {
+                hasRepeated2 = false;
+            }
+            if (SpecialMoves.firstTurnMoves.contains(move2.getName())) {
+                mustWait2 = true;
+            }
+
             //Now create a new State.
             State newState = new State(
                 randomId(),
@@ -303,7 +358,7 @@ public class MainDriver {
                 isEndState,
                 false
             );
-            battleTree.states.put(newState.getId(), newState);
+            battleTree.addState(newState);
             stateQueue.add(newState);
             Edge newEdge = new Edge(
                 randomId(),
@@ -312,12 +367,15 @@ public class MainDriver {
                 moveAction1,
                 moveAction2
             );
-            battleTree.edges.put(newEdge.getId(), newEdge);
+            battleTree.addEdge(newEdge);
+            prevEdge = newEdge;
+            if (battleTree.states.size() > 100) {
+                break;
+            }
         }
+        battleTree.id = randomId();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        objectMapper.writeValue(new File("output.json"), battleTree);
+        return battleTree;
     }
 
     private static TeamStatus getInitStatus(Team t1) {
@@ -337,9 +395,7 @@ public class MainDriver {
         );
     }
 
-    private static long randomId() {
-        return new SecureRandom().nextLong();
-    }
+
 
     //Assuming min damage for ease of analysis
     private static double damageDealt (PokemonStatus attacker, PokemonStatus defender, Move move) {
@@ -356,7 +412,7 @@ public class MainDriver {
             isStab = isStab || attackerPokemon.getType2().getName() == move.getType();
         }
 
-        return ((125d/250d) * (attackDefensePortion) * move.getPower() + 2) * (isStab ? 1.5 : 1) * calculateTypeModifier(defenderPokemon, move);
+        return ((175d/250d) * (attackDefensePortion) * move.getPower() + 2) * (isStab ? 1.5 : 1) * calculateTypeModifier(defenderPokemon, move);
     }
 
     private static double calculateTypeModifier(PokemonWithTypes defender, Move move) {

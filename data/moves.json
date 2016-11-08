@@ -295561,7 +295561,7 @@
     "29": {
       "id": 29,
       "national": 29,
-      "name": "Nidoran\u2640",
+      "name": "NidoranF",
       "alias": "nidoran-f",
       "form": "",
       "formalias": "",
@@ -295581,7 +295581,7 @@
       "speed": 41,
       "dheight": null,
       "dweight": null,
-      "fullname": "Nidoran\u2640",
+      "fullname": "NidoranF",
       "imgclass": "n29",
       "img": "nidoran-f"
     },
@@ -295642,7 +295642,7 @@
     "32": {
       "id": 32,
       "national": 32,
-      "name": "Nidoran\u2642",
+      "name": "NidoranM",
       "alias": "nidoran-m",
       "form": "",
       "formalias": "",
@@ -295662,7 +295662,7 @@
       "speed": 50,
       "dheight": null,
       "dweight": null,
-      "fullname": "Nidoran\u2642",
+      "fullname": "NidoranM",
       "imgclass": "n32",
       "img": "nidoran-m"
     },
