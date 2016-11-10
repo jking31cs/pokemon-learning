@@ -7,8 +7,8 @@ import com.google.common.base.Objects;
  */
 public class State {
     private final String id;
-    private final Team t1;
-    private final Team t2;
+    private final String t1Id;
+    private final String t2Id;
     private final TeamStatus t1Status;
     private final TeamStatus t2Status;
     private final PokemonStatus p1Status;
@@ -18,8 +18,8 @@ public class State {
 
     public State(
         String id,
-        Team t1,
-        Team t2,
+        Team t1Id,
+        Team t2Id,
         TeamStatus t1Status,
         TeamStatus t2Status,
         PokemonStatus p1Status,
@@ -28,8 +28,8 @@ public class State {
         boolean isInitState
     ) {
         this.id = id;
-        this.t1 = t1;
-        this.t2 = t2;
+        this.t1Id = t1Id.getId();
+        this.t2Id = t2Id.getId();
         this.t1Status = t1Status;
         this.t2Status = t2Status;
         this.p1Status = p1Status;
@@ -42,12 +42,12 @@ public class State {
         return id;
     }
 
-    public Team getT1() {
-        return t1;
+    public String getT1Id() {
+        return t1Id;
     }
 
-    public Team getT2() {
-        return t2;
+    public String getT2Id() {
+        return t2Id;
     }
 
     public TeamStatus getT1Status() {
@@ -74,10 +74,10 @@ public class State {
         if (id != null ? !id.equals(state.id) : state.id != null) {
             return false;
         }
-        if (t1 != null ? !t1.equals(state.t1) : state.t1 != null) {
+        if (t1Id != null ? !t1Id.equals(state.t1Id) : state.t1Id != null) {
             return false;
         }
-        if (t2 != null ? !t2.equals(state.t2) : state.t2 != null) {
+        if (t2Id != null ? !t2Id.equals(state.t2Id) : state.t2Id != null) {
             return false;
         }
         if (t1Status != null ? !t1Status.equals(state.t1Status) : state.t1Status != null) {
@@ -96,8 +96,8 @@ public class State {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (t1 != null ? t1.hashCode() : 0);
-        result = 31 * result + (t2 != null ? t2.hashCode() : 0);
+        result = 31 * result + (t1Id != null ? t1Id.hashCode() : 0);
+        result = 31 * result + (t2Id != null ? t2Id.hashCode() : 0);
         result = 31 * result + (t1Status != null ? t1Status.hashCode() : 0);
         result = 31 * result + (t2Status != null ? t2Status.hashCode() : 0);
         result = 31 * result + (p1Status != null ? p1Status.hashCode() : 0);
@@ -131,8 +131,8 @@ public class State {
     public String toString() {
         return Objects.toStringHelper(this)
             .add("id", id)
-            .add("t1", t1)
-            .add("t2", t2)
+            .add("t1Id", t1Id)
+            .add("t2Id", t2Id)
             .add("t1Status", t1Status)
             .add("t2Status", t2Status)
             .add("p1Status", p1Status)

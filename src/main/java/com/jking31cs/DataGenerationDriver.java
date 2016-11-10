@@ -1,10 +1,16 @@
 package com.jking31cs;
 
+import java.io.File;
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jking31cs.state.Team;
 
 import static com.jking31cs.IdGenerator.randomId;
@@ -16,13 +22,16 @@ public class DataGenerationDriver {
     public GeneratedData generatedData = new GeneratedData();
 
     public DataGenerationDriver() throws IOException {
+        File outputDirectory = new File("output");
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdir();
+        }
         buildTeams();
         simulateBattleTrees();
     }
 
     public static void main(String[] args) throws IOException {
         DataGenerationDriver driver = new DataGenerationDriver();
-        //new ObjectMapper().writeValue(new File("allData.json"), driver.generatedData);
     }
 
     private void buildTeams() throws IOException {
@@ -43,20 +52,28 @@ public class DataGenerationDriver {
             }
         }
         System.out.println("Created all teams, size:" + generatedData.teams.size());
+        new ObjectMapper().writeValue(new File("output/teams.json"), generatedData.teams);
     }
 
     private void simulateBattleTrees() throws IOException {
-        int count = 1;
+        int count = 0;
         for (Team t1 : generatedData.teams.values()) {
-            for (Team t2 : generatedData.teams.values()) {
+            int battleCount = 0;
+            while (battleCount < 5) {
+                Team t2 = generatedData.teams.values().stream().collect(Collectors.toList()).get(
+                    new Random().nextInt(generatedData.teams.size())
+                );
                 if (t1.equals(t2)) {
                     continue; //Not doing mirror matches, blah
                 }
                 generatedData.addBattleTree(BattleTreeBuilder.createBattleTree(t1, t2));
-                if (generatedData.battleTrees.size() > count) {
-                    System.out.println("Simulated " + ((++count)) + " battles since last output");
-                }
+                ++battleCount;
             }
+            ++count;
+            System.out.println(String.format("Percent Complete: %.5f", ((1.0d * (count)) /  generatedData.teams.size())));
+            File resultFile = new File("output/simulated-battles" + count + ".json");
+            new ObjectMapper().writeValue(resultFile, generatedData.battleTrees);
+            generatedData.battleTrees = new HashMap<>();
         }
     }
 

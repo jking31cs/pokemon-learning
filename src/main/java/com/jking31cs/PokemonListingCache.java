@@ -1,5 +1,9 @@
 package com.jking31cs;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -55,6 +59,58 @@ public class PokemonListingCache {
             }
             pokemonWithTypes.put(pokemon.getName(), new PokemonWithTypes(pokemon, t1, t2));
         }
-        return pokemonWithTypes;
+        Set<String> namesICareAbout = Sets.newHashSet(
+            "Mewtwo",
+            "Dragonite",
+            "Mew",
+            "Moltres",
+            "Zapdos",
+            "Articuno",
+            "Cloyster",
+            "Gyarados",
+            "Arcanine",
+            "Exeggutor",
+            "Tauros",
+            "Lapras",
+            "Rhydon",
+            "Aerodactyl",
+            "Tentacruel",
+            "Starmie",
+            "Pinsir",
+            "Vaporeon",
+            "Jolteon",
+            "Flareon",
+            "Kabutops",
+            "Snorlax",
+            "Venusaur",
+            "Charizard",
+            "Blastoise",
+            "Gengar",
+            "Kingler",
+            "Omastar",
+            "Ninetales",
+            "Machamp",
+            "Victreebel",
+            "Golem",
+            "Rapidash",
+            "Weezing",
+            "Scyther",
+            "Chansey",
+            "Nidoqueen",
+            "Nidoking",
+            "Poliwrath",
+            "Hypno",
+            "Kangaskhan",
+            "Sandslash",
+            "Golduck",
+            "Alakazam",
+            "Dewgong",
+            "Dodrio",
+            "Muk",
+            "Electrode",
+            "Pidgeot",
+            "Raichu"
+        );
+        return Maps.asMap(namesICareAbout, pokemonWithTypes::get);
     }
 }

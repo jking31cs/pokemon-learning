@@ -24,6 +24,6 @@ public class GeneratedData {
 
     public void addBattleTree(BattleTree battleTree) {
         battleTrees.put(battleTree.id, battleTree);
-        teamToBattleTreeIndex.get(battleTree.states.get(battleTree.initialStateId).getT1().getId()).add(battleTree.id);
+        teamToBattleTreeIndex.get(battleTree.states.get(battleTree.initialStateId).getT1Id()).add(battleTree.id);
     }
 }

@@ -349,8 +349,8 @@ public class BattleTreeBuilder {
             //Now create a new State.
             State newState = new State(
                 randomId(),
-                currentState.getT1(),
-                currentState.getT2(),
+                t1,
+                t2,
                 newT1Status,
                 newT2Status,
                 newP1Status,
