@@ -1,5 +1,6 @@
 package com.jking31cs.state;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 /**
@@ -11,7 +12,12 @@ public class Team {
     private final String p2;
     private final String p3;
 
-    public Team(String id, String p1, String p2, String p3) {
+    public Team(
+            @JsonProperty("id") String id,
+            @JsonProperty("p1") String p1,
+            @JsonProperty("p2") String p2,
+            @JsonProperty("p3") String p3
+    ) {
         this.id = id;
         this.p1 = p1;
         this.p2 = p2;

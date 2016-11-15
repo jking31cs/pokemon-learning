@@ -1,5 +1,7 @@
 package com.jking31cs.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 /**
@@ -16,20 +18,21 @@ public class State {
     private final boolean isEndState;
     private final boolean isInitState;
 
+    @JsonCreator
     public State(
-        String id,
-        Team t1Id,
-        Team t2Id,
-        TeamStatus t1Status,
-        TeamStatus t2Status,
-        PokemonStatus p1Status,
-        PokemonStatus p2Status,
-        boolean isEndState,
-        boolean isInitState
+        @JsonProperty("id") String id,
+        @JsonProperty("t1Id") String t1Id,
+        @JsonProperty("t2Id") String t2Id,
+        @JsonProperty("t1Status") TeamStatus t1Status,
+        @JsonProperty("t2Status") TeamStatus t2Status,
+        @JsonProperty("p1Status") PokemonStatus p1Status,
+        @JsonProperty("p2Status") PokemonStatus p2Status,
+        @JsonProperty("endState") boolean isEndState,
+        @JsonProperty("initState") boolean isInitState
     ) {
         this.id = id;
-        this.t1Id = t1Id.getId();
-        this.t2Id = t2Id.getId();
+        this.t1Id = t1Id;
+        this.t2Id = t2Id;
         this.t1Status = t1Status;
         this.t2Status = t2Status;
         this.p1Status = p1Status;

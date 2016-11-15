@@ -1,5 +1,7 @@
 package com.jking31cs.state;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 /**
@@ -11,7 +13,13 @@ public class TeamStatus {
     private final PokemonStatus p2;
     private final PokemonStatus p3;
 
-    public TeamStatus(String id, PokemonStatus p1, PokemonStatus p2, PokemonStatus p3) {
+    @JsonCreator
+    public TeamStatus(
+            @JsonProperty("id") String id,
+            @JsonProperty("p1") PokemonStatus p1,
+            @JsonProperty("p2") PokemonStatus p2,
+            @JsonProperty("p3") PokemonStatus p3
+    ) {
         this.id = id;
         this.p1 = p1;
         this.p2 = p2;

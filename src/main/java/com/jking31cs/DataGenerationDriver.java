@@ -2,15 +2,14 @@ package com.jking31cs;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.jking31cs.state.Team;
 
 import static com.jking31cs.IdGenerator.randomId;
@@ -72,7 +71,9 @@ public class DataGenerationDriver {
             ++count;
             System.out.println(String.format("Percent Complete: %.5f", ((1.0d * (count)) /  generatedData.teams.size())));
             File resultFile = new File("output/simulated-battles" + count + ".json");
-            new ObjectMapper().writeValue(resultFile, generatedData.battleTrees);
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new GuavaModule());
+            objectMapper.writeValue(resultFile, generatedData.battleTrees);
             generatedData.battleTrees = new HashMap<>();
         }
     }

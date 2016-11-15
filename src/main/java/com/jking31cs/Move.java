@@ -1,5 +1,7 @@
 package com.jking31cs;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
@@ -12,13 +14,14 @@ public class Move {
     private final boolean special;
     private final int power, accuracy, pp;
 
+    @JsonCreator
     public Move(
-            String name,
-            TypeEnum type,
-            boolean special,
-            int power,
-            int accuracy,
-            int pp
+            @JsonProperty("name") String name,
+            @JsonProperty("type") TypeEnum type,
+            @JsonProperty("special") boolean special,
+            @JsonProperty("power") int power,
+            @JsonProperty("accuracy") int accuracy,
+            @JsonProperty("pp") int pp
     ) {
         this.name = name;
         this.type = type;

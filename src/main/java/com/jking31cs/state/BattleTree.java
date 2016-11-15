@@ -28,7 +28,7 @@ public class BattleTree {
 
     public void addEdge(Edge edge) {
         edges.put(edge.getId(), edge);
-        stateToEdgeMap.get(edge.getPrevState().getId()).add(edge.getId());
+        stateToEdgeMap.get(edge.getPrevStateId()).add(edge.getId());
     }
 
     @Override

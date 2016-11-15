@@ -36,8 +36,8 @@ public class BattleTreeBuilder {
 
         State initState = new State(
                 randomId(),
-                t1,
-                t2,
+                t1.getId(),
+                t2.getId(),
                 t1Status,
                 t2Status,
                 p1,
@@ -349,8 +349,8 @@ public class BattleTreeBuilder {
             //Now create a new State.
             State newState = new State(
                 randomId(),
-                t1,
-                t2,
+                t1.getId(),
+                t2.getId(),
                 newT1Status,
                 newT2Status,
                 newP1Status,
@@ -362,8 +362,8 @@ public class BattleTreeBuilder {
             stateQueue.add(newState);
             Edge newEdge = new Edge(
                 randomId(),
-                currentState,
-                newState,
+                currentState.getId(),
+                newState.getId(),
                 moveAction1,
                 moveAction2
             );
