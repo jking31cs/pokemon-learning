@@ -36,9 +36,11 @@ public class DataGenerationDriver {
     private void buildTeams() throws IOException {
         Map<String, PokemonWithTypes> allPokemon = PokemonListingCache.getAll();
         List<String> names = allPokemon.keySet().stream().collect(Collectors.toList());
-        for (int i = 0; i < names.size() - 2; i++) {
-            for (int j = i + 1; j < names.size() - 1; j++) {
-                for (int k = j + 1; k < names.size(); k++) {
+        for (int i = 0; i < names.size(); i++) {
+            for (int j = 0; j < names.size(); j++) {
+                if (j == i) continue;
+                for (int k = 0; k < names.size(); k++) {
+                    if (k == i || j == k) continue;
                     Team team = new Team(
                             randomId(),
                             names.get(i),
@@ -69,8 +71,13 @@ public class DataGenerationDriver {
                 ++battleCount;
             }
             ++count;
-            System.out.println(String.format("Percent Complete: %.5f", ((1.0d * (count)) /  generatedData.teams.size())));
-            File resultFile = new File("output/simulated-battles" + count + ".json");
+            System.out.println(String.format("Percent Complete: %.5f", ((100.0d * (count)) /  generatedData.teams.size())));
+            File outputDir = new File("output/simulated-battles");
+            if (!outputDir.exists()) outputDir.mkdir();
+            String subDir = t1.getId().substring(0,2);
+            File targetDir = new File(outputDir, subDir);
+            if (!targetDir.exists()) targetDir.mkdir();
+            File resultFile = new File(targetDir, "battle-" + t1.getId() + ".json");
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new GuavaModule());
             objectMapper.writeValue(resultFile, generatedData.battleTrees);
