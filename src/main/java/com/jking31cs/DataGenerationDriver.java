@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.jking31cs.state.Team;
@@ -19,13 +20,21 @@ import static com.jking31cs.IdGenerator.randomId;
  */
 public class DataGenerationDriver {
     public GeneratedData generatedData = new GeneratedData();
+    private File outputDirectory = new File("output");
 
     public DataGenerationDriver() throws IOException {
-        File outputDirectory = new File("output");
         if (!outputDirectory.exists()) {
             outputDirectory.mkdir();
         }
-        buildTeams();
+        File teamFile = new File(outputDirectory, "teams.json");
+        if (teamFile.exists()) {
+            ObjectMapper om = new ObjectMapper();
+            om.registerModule(new GuavaModule());
+            JavaType teamType = om.getTypeFactory().constructMapType(HashMap.class, String.class, Team.class);
+            generatedData.addAllTeams(om.readValue(teamFile, teamType));
+        } else {
+            buildTeams();
+        }
         simulateBattleTrees();
     }
 
@@ -59,6 +68,16 @@ public class DataGenerationDriver {
     private void simulateBattleTrees() throws IOException {
         int count = 0;
         for (Team t1 : generatedData.teams.values()) {
+
+            //First, detect if we already did this team.
+            String teamId = t1.getId();
+            if (new File(outputDirectory, "simulated-battles/" + teamId.substring(0,2) + "/battle-" + teamId +".json").exists()) {
+                ++count;
+                System.out.println(String.format("Percent Complete: %.5f", ((100.0d * (count)) /  generatedData.teams.size())));
+                continue;
+            }
+
+            //Now simulate some battles.
             int battleCount = 0;
             while (battleCount < 5) {
                 Team t2 = generatedData.teams.values().stream().collect(Collectors.toList()).get(

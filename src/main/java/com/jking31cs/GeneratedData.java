@@ -17,6 +17,12 @@ public class GeneratedData {
 
     public Map<String, Set<String>> teamToBattleTreeIndex = new HashMap<>();
 
+    public void addAllTeams(Map<String, Team> teams) {
+        for (String id : teams.keySet()) {
+            this.addTeam(teams.get(id));
+        }
+    }
+
     public void addTeam(Team team) {
         teams.put(team.getId(), team);
         teamToBattleTreeIndex.put(team.getId(), new HashSet<>());
