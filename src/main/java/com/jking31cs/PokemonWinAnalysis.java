@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jking31cs.state.BattleTree;
+import com.jking31cs.state.State;
 
 /**
  * Created by jking31 on 11/20/16.
@@ -32,7 +33,14 @@ public class PokemonWinAnalysis {
     }
 
     private void analyzeBattle(BattleTree tree) {
-        //TODO incremenet win and battle bassed on tree data.
+        for (State state : tree.states.values()) {
+            if (state.isEndState()) {
+                if (state.getP1Status().getCurrentHP() > 0) {
+                    wins++;
+                }
+                battles++;
+            }
+        }
     }
 
 }

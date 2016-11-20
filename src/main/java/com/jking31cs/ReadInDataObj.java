@@ -16,6 +16,8 @@ import com.jking31cs.state.Team;
  */
 public class ReadInDataObj {
 
+    private static Map<String, Map<String, BattleTree>> teamBattlesCache = new HashMap<>();
+
     public static void main(String[] args) throws IOException {
 
         Map<String, Team> teams = TeamReader.readTeamsFromFile();
@@ -32,13 +34,18 @@ public class ReadInDataObj {
     }
 
     public static Map<String, BattleTree> battlesForTeam(String id) throws IOException {
+        if (teamBattlesCache.containsKey(id)) {
+            return teamBattlesCache.get(id);
+        }
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new GuavaModule());
         JavaType mapType = om.getTypeFactory().constructMapType(HashMap.class, String.class, BattleTree.class);
         String dirKey = id.substring(0,2);
         File battleFile = new File("output/simulated-battles/" + dirKey + "/battle-" + id + ".json");
-        if (!battleFile.exists()) throw new IllegalArgumentException("No battle trees exist for this team id.");
+//        if (!battleFile.exists()) throw new IllegalArgumentException("No battle trees exist for this team id.");
+        if (!battleFile.exists()) return new HashMap<>();
         Map<String, BattleTree> readInValues = om.readValue(battleFile, mapType);
+        teamBattlesCache.put(id, readInValues);
         return readInValues;
     }
 }
