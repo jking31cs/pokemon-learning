@@ -38,6 +38,10 @@ public class TeamReader {
     public static Map<String, List<String>> pokemonTeamIndex() throws IOException {
         if (pokemonIndex != null) return pokemonIndex;
         File teamFile = new File("output/indexes/pk-team-index.json");
+        if (!teamFile.exists()) {
+            createPokemonIndex();
+            return pokemonTeamIndex();
+        }
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new GuavaModule());
         JavaType indexType = om.getTypeFactory().constructMapType(HashMap.class, String.class, List.class);
