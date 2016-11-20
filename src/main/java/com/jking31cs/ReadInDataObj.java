@@ -3,7 +3,6 @@ package com.jking31cs;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JavaType;
@@ -40,6 +39,6 @@ public class ReadInDataObj {
         File battleFile = new File("output/simulated-battles/" + dirKey + "/battle-" + id + ".json");
         if (!battleFile.exists()) throw new IllegalArgumentException("No battle trees exist for this team id.");
         Map<String, BattleTree> readInValues = om.readValue(battleFile, mapType);
-        System.out.println(readInValues);
+        return readInValues;
     }
 }
