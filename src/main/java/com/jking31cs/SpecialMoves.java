@@ -30,6 +30,8 @@ public class SpecialMoves {
 
     //These moves have way too specific of rules to consider.
     public static final Set<String> ignoreMoves = Sets.newHashSet(
-            "Dream Eater"
+            "Dream Eater",
+        "Explosion",
+        "Self-Destruct"
     );
 }

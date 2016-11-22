@@ -11,7 +11,6 @@ import java.util.*;
  * Created by May on 11/21/2016.
  */
 public class PokemonSituationAnalysis {
-    private double battles = 0;
     private int temp;
     private final String pokemon1;
     private final String pokemon2;
@@ -55,25 +54,26 @@ public class PokemonSituationAnalysis {
         for (State state : tree.states.values()) {
             if (state.isInitState()) {
                 //System.out.println(pokemon2+state.getT2Status().getP1().getName()+state.getT2Status().getP2().getName()+state.getT2Status().getP3().getName());
-                if ((!state.getT2Status().getP1().getName().equals(pokemon2)) && (!state.getT2Status().getP2().getName().equals(pokemon2)) && (!state.getT2Status().getP3().getName().equals(pokemon2))) {
+                if ((!state.getT2Status().getP1().getName().equals(pokemon2))
+                    && (!state.getT2Status().getP2().getName().equals(pokemon2))
+                    && (!state.getT2Status().getP3().getName().equals(pokemon2))) {
                     break;
                 }
                 calculate1(tree);
-                battles++;
             }
         }
     }
+
     //all no-end states
     private void calculate1(BattleTree tree){
         for (State state : tree.states.values()){
             if (!state.getP1Status().getName().equals(pokemon1) || !state.getP2Status().getName().equals(pokemon2)) continue;
 
-            if (state.isEndState()==false){
+            if (!state.isEndState()){
                 Set<String> edges=tree.stateToEdgeMap.get(state.getId());
-                Iterator iterator = edges.iterator();
                 // check values
-                while (iterator.hasNext()){
-                    Edge currentEdge=tree.edges.get(iterator.next());
+                for (String edge : edges) {
+                    Edge currentEdge = tree.edges.get(edge);
 
                     if (currentEdge.getP1Move().getMove().isPresent()) {
                         Move p1Move = currentEdge.getP1Move().getMove().get();

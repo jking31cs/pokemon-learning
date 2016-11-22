@@ -34,9 +34,6 @@ public class ReadInDataObj {
     }
 
     public static Map<String, BattleTree> battlesForTeam(String id) throws IOException {
-        if (teamBattlesCache.containsKey(id)) {
-            return teamBattlesCache.get(id);
-        }
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new GuavaModule());
         JavaType mapType = om.getTypeFactory().constructMapType(HashMap.class, String.class, BattleTree.class);
@@ -45,7 +42,7 @@ public class ReadInDataObj {
 //        if (!battleFile.exists()) throw new IllegalArgumentException("No battle trees exist for this team id.");
         if (!battleFile.exists()) return new HashMap<>();
         Map<String, BattleTree> readInValues = om.readValue(battleFile, mapType);
-        teamBattlesCache.put(id, readInValues);
+//        teamBattlesCache.put(id, readInValues);
         return readInValues;
     }
 }

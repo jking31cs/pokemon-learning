@@ -83,6 +83,7 @@ public class BattleTreeBuilder {
                 Math.min(pokemon1.getHp() * thresholdDamagePercent,
                     p1Status.getCurrentHP());
             for (Move m1 : moveSets.get(p1Status.getName())) {
+                if (SpecialMoves.ignoreMoves.contains(m1.getName())) continue;
                 double damageDealt = damageDealt(p1Status, p2Status, m1);
                 if (damage1 < damageDealt) {
                     damage1 = damageDealt;
@@ -90,6 +91,7 @@ public class BattleTreeBuilder {
                 }
             }
             for (Move m2 : moveSets.get(p2Status.getName())) {
+                if (SpecialMoves.ignoreMoves.contains(m2.getName())) continue;
                 double damageDealt = damageDealt(p2Status, p1Status, m2);
                 if (damage2 < damageDealt) {
                     damage2 = damageDealt;
@@ -398,7 +400,7 @@ public class BattleTreeBuilder {
 
 
     //Assuming min damage for ease of analysis
-    private static double damageDealt (PokemonStatus attacker, PokemonStatus defender, Move move) {
+    static double damageDealt (PokemonStatus attacker, PokemonStatus defender, Move move) {
         //((200/7)*Attack\Special*MoveAttack)/Defense\Special)/50)+2)*STAB)*TypeModifier/10)*217)/255
 
         PokemonWithTypes attackerPokemon = allPokemon.get(attacker.getName());
@@ -421,19 +423,19 @@ public class BattleTreeBuilder {
         if (defender.getType1().getWeaknesses().contains(move.getType())) {
             modifier = modifier * 2;
         }
-        if (has2Type && defender.getType1().getWeaknesses().contains(move.getType())) {
+        if (has2Type && defender.getType2().getWeaknesses().contains(move.getType())) {
             modifier = modifier * 2;
         }
         if (defender.getType1().getResistances().contains(move.getType())) {
             modifier = modifier * .5d;
         }
-        if (has2Type && defender.getType1().getResistances().contains(move.getType())) {
+        if (has2Type && defender.getType2().getResistances().contains(move.getType())) {
             modifier = modifier * .5d;
         }
         if (defender.getType1().getNullifications().contains(move.getType())) {
             modifier = modifier * 0;
         }
-        if (has2Type && defender.getType1().getNullifications().contains(move.getType())) {
+        if (has2Type && defender.getType2().getNullifications().contains(move.getType())) {
             modifier = modifier * 0;
         }
         return modifier * .85;
