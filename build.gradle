@@ -11,7 +11,7 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
-mainClassName='com.jking31cs.MainDriver'
+mainClassName='com.jking31cs.DataGenerationDriver'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -35,4 +35,14 @@ dependencies {
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
+}
+
+task executePokemonNextMoveAnalysis(type:JavaExec) {
+    main = 'com.jking31cs.PokemonAnalysis'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task executePokemonPerformanceAnalysis(type:JavaExec) {
+    main = 'com.jking31cs.PokemonPerformanceAnalysis'
+    classpath = sourceSets.main.runtimeClasspath
 }
