@@ -4,7 +4,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,12 +33,15 @@ public class PokemonAnalysis {
         final BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
         writer.write('[');
         writer.flush();
+        final BooleanHolder stop = new BooleanHolder();
+        stop.bool = false;
 
         Runtime.getRuntime().addShutdownHook(new Thread()
         {
             @Override
             public void run()
             {
+                stop.bool = true;
                 try {
                     writer.write(']');
                     writer.flush();
@@ -43,31 +51,72 @@ public class PokemonAnalysis {
                 }
             }
         });
-        boolean isFirst = true;
-        try {
-            for (String pokemon1 : PokemonListingCache.getAll().keySet()) {
-                for (String pokemon2 : PokemonListingCache.getAll().keySet()) {
-                    Map<String, Double> moveStatistics = new PokemonSituationAnalysis(pokemon1, pokemon2).getMoveConfidence();
-                    if (pokemon1.equals(pokemon2)) continue;
-                    if (!isFirst) {
-                        writer.write(',');
+        BooleanHolder isFirst = new BooleanHolder();
+        Lock lockWrite = new ReentrantLock();
+        final BlockingDeque<String> queue = new LinkedBlockingDeque<>(Arrays.asList(
+                "Starmie",
+                "Lapras",
+                "Mewtwo",
+                "Kingler",
+                "Blastoise",
+                "Jolteon",
+                "Raichu",
+                "Poliwrath",
+                "Cloyster",
+                "Venusaur"
+        ));
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (!queue.isEmpty()) {
+                        String pokemon1 = queue.poll();
+                        for (String pokemon2 : PokemonListingCache.getAll().keySet()) {
+                            if (stop.bool) {
+                                return;
+                            }
+                            Map<String, Double> moveStatistics =
+                                    new PokemonSituationAnalysis(pokemon1, pokemon2).getMoveConfidence();
+                            if (pokemon1.equals(pokemon2)) continue;
+
+                            JsonOutput output = new JsonOutput();
+                            output.attacker = pokemon1;
+                            output.defender = pokemon2;
+                            output.move = moveStatistics.keySet().stream().findFirst().orElse("");
+                            output.confidence = moveStatistics.values().stream().findFirst().orElse(0d);
+                            synchronizedWrite(output, writer, isFirst, lockWrite);
+                            isFirst.bool = false;
+                        }
                     }
-                    isFirst = false;
-                    JsonOutput output = new JsonOutput();
-                    output.attacker = pokemon1;
-                    output.defender = pokemon2;
-                    output.move = moveStatistics.keySet().stream().findFirst().orElse("");
-                    output.confidence = moveStatistics.values().stream().findFirst().orElse(0d);
-                    writer.write(new ObjectMapper().writeValueAsString(output));
-                    writer.newLine();
-                    writer.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } finally {
-            writer.write(']');
+        };
+        new Thread(task).start();
+        new Thread(task).start();
+        new Thread(task).start();
+
+
+    }
+
+    private static class BooleanHolder {
+        boolean bool = true;
+    }
+
+    private static void synchronizedWrite(JsonOutput output, BufferedWriter writer, BooleanHolder isFirst, Lock lock) {
+        lock.lock();
+        try {
+            if (!isFirst.bool) {
+                writer.write(',');
+            }
+            writer.write(new ObjectMapper().writeValueAsString(output));
+            writer.newLine();
             writer.flush();
-            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        lock.unlock();
     }
 
 }
