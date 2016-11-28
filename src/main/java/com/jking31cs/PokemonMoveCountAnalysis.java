@@ -2,6 +2,7 @@ package com.jking31cs;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.jking31cs.state.BattleTree;
 import com.jking31cs.state.Edge;
@@ -40,6 +41,19 @@ public class PokemonMoveCountAnalysis {
         final ObjectMapper om = new ObjectMapper();
         final JavaType jt = om.getTypeFactory().constructMapType(HashMap.class, String.class, BattleTree.class);
         om.registerModule(new GuavaModule());
+
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run() {
+                try {
+                    om.enable(SerializationFeature.INDENT_OUTPUT);
+                    om.writeValue(new File("output/move-analysis.json"), moveCount);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
         Runnable task = new Runnable() {
             @Override
@@ -84,8 +98,6 @@ public class PokemonMoveCountAnalysis {
         thread1.join();
         thread2.join();
         thread3.join();
-
-        om.writeValue(new File("output/move-analysis.json"), moveCount);
     }
 
 }
