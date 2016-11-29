@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,10 +19,10 @@ import com.jking31cs.state.Team;
 public class TeamReader {
 
     private static Map<String, Team> teamsMap;
-    private static Map<String, List<String>> pokemonIndex;
+    private static Map<String, Set<String>> pokemonIndex;
 
     public static void main(String[] args) throws IOException {
-        Map<String, List<String>> x = pokemonTeamIndex();
+        Map<String, Set<String>> x = pokemonTeamIndex();
         System.out.println(x);
     }
 
@@ -35,7 +36,7 @@ public class TeamReader {
         return teamsMap;
     }
 
-    public static Map<String, List<String>> pokemonTeamIndex() throws IOException {
+    public static Map<String, Set<String>> pokemonTeamIndex() throws IOException {
         if (pokemonIndex != null) return pokemonIndex;
         File teamFile = new File("output/indexes/pk-team-index.json");
         if (!teamFile.exists()) {
@@ -44,7 +45,7 @@ public class TeamReader {
         }
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new GuavaModule());
-        JavaType indexType = om.getTypeFactory().constructMapType(HashMap.class, String.class, List.class);
+        JavaType indexType = om.getTypeFactory().constructMapType(HashMap.class, String.class, Set.class);
         pokemonIndex = om.readValue(teamFile, indexType);
         return pokemonIndex;
     }

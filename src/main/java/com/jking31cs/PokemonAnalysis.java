@@ -18,11 +18,55 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class PokemonAnalysis {
 
-    private static class JsonOutput {
+    public static class JsonOutput {
         public String attacker;
         public String defender;
         public String move;
         public Double confidence;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            JsonOutput that = (JsonOutput) o;
+
+            if (attacker != null ? !attacker.equals(that.attacker) : that.attacker != null) {
+                return false;
+            }
+            if (defender != null ? !defender.equals(that.defender) : that.defender != null) {
+                return false;
+            }
+            if (move != null ? !move.equals(that.move) : that.move != null) {
+                return false;
+            }
+            return confidence != null ? confidence.equals(that.confidence) : that.confidence == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = attacker != null ? attacker.hashCode() : 0;
+            result = 31 * result + (defender != null ? defender.hashCode() : 0);
+            result = 31 * result + (move != null ? move.hashCode() : 0);
+            result = 31 * result + (confidence != null ? confidence.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("JsonOutput{");
+            sb.append("attacker='").append(attacker).append('\'');
+            sb.append(", defender='").append(defender).append('\'');
+            sb.append(", move='").append(move).append('\'');
+            sb.append(", confidence=").append(confidence);
+            sb.append('}');
+            return sb.toString();
+        }
     }
 
     public static void main(String[] args) throws IOException {

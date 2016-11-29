@@ -1,11 +1,18 @@
 package com.jking31cs;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
+
 import com.jking31cs.state.BattleTree;
 import com.jking31cs.state.Edge;
 import com.jking31cs.state.State;
-
-import java.io.IOException;
-import java.util.*;
 
 /**
  * Created by May on 11/21/2016.
@@ -27,7 +34,7 @@ public class PokemonSituationAnalysis {
 
     public Map<String, Double> getMoveConfidence() throws IOException {
         //TODO all your team gathering and stuff here.
-        List<String> teamIds = TeamReader.pokemonTeamIndex().get(pokemon1);
+        List<String> teamIds = new ArrayList<>(TeamReader.pokemonTeamIndex().get(pokemon1));
         for (String teamId : teamIds) {
             Map<String, BattleTree> battles = ReadInDataObj.battlesForTeam(teamId);
             for (BattleTree bt : battles.values()) {

@@ -1,14 +1,15 @@
 package com.jking31cs;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.jking31cs.state.BattleTree;
 import com.jking31cs.state.State;
-
-import static java.lang.Boolean.TRUE;
 
 /**
  * Created by jking31 on 11/20/16.
@@ -19,15 +20,23 @@ public class PokemonWinAnalysis {
 
     private double wins = 0;
     private double battles = 0;
-    private final String pokemon;
+    private final List<String> pokemon;
 
-    public PokemonWinAnalysis(String pokemon) {
+    public PokemonWinAnalysis(String singlePokemon) {
+        this.pokemon = Collections.singletonList(singlePokemon);
+    }
+
+    public PokemonWinAnalysis(List<String> pokemon) {
         this.pokemon = pokemon;
     }
 
     public Double getConfidence() throws IOException {
         //TODO all your team gathering and stuff here.
-        List<String> teamIds = TeamReader.pokemonTeamIndex().get(pokemon);
+        Set<String> teamIds = TeamReader.pokemonTeamIndex().get(pokemon.get(0));
+        for (int i = 1; i < pokemon.size(); i++) {
+            Set<String> teamIdsForPkmn = TeamReader.pokemonTeamIndex().get(pokemon.get(i));
+            teamIds = Sets.intersection(teamIds, teamIdsForPkmn);
+        }
         for (String teamId : teamIds) {
             Map<String, BattleTree> battles = ReadInDataObj.battlesForTeam(teamId);
             battles.values().forEach(this::analyzeBattle);
