@@ -32,4 +32,8 @@ public class GeneratedData {
         battleTrees.put(battleTree.id, battleTree);
         teamToBattleTreeIndex.get(battleTree.states.get(battleTree.initialStateId).getT1Id()).add(battleTree.id);
     }
+
+    public void addAllBattleTrees(Map<String, BattleTree> battleTrees) {
+        battleTrees.values().forEach(this::addBattleTree);
+    }
 }

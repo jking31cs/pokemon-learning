@@ -1,11 +1,9 @@
 package com.jking31cs;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.google.common.collect.Sets;
 import com.jking31cs.state.BattleTree;
@@ -21,13 +19,14 @@ public class PokemonWinAnalysis {
     private double wins = 0;
     private double battles = 0;
     private final List<String> pokemon;
+    private final Lock lock = new ReentrantLock();
 
     public PokemonWinAnalysis(String singlePokemon) {
         this.pokemon = Collections.singletonList(singlePokemon);
     }
 
-    public PokemonWinAnalysis(List<String> pokemon) {
-        this.pokemon = pokemon;
+    public PokemonWinAnalysis(Set<String> pokemon) {
+        this.pokemon = new ArrayList<>(pokemon);
     }
 
     public Double getConfidence() throws IOException {
@@ -52,10 +51,14 @@ public class PokemonWinAnalysis {
             for (State state : tree.states.values()) {
                 if (state.isEndState()) {
                     if (state.getP1Status().getCurrentHP() > 0) {
+                        lock.lock();
                         battleT1WinCache.put(tree.id, true);
+                        lock.unlock();
                         wins++;
                     } else {
+                        lock.lock();
                         battleT1WinCache.put(tree.id, false);
+                        lock.unlock();
                     }
                     battles++;
                 }
