@@ -34,7 +34,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-task runPokemonAmalysis (dependsOn: 'classes', type: JavaExec) {
+task runPokemonAnalysis (dependsOn: 'classes', type: JavaExec) {
     main = 'com.jking31cs.PokemonPerformanceAnalysis'
     classpath = sourceSets.main.runtimeClasspath
     if (System.getProperty("exec.args") != null) {
