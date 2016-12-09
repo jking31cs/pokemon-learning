@@ -12,7 +12,7 @@ import com.jking31cs.state.BattleTree;
 import com.jking31cs.state.Team;
 
 /**
- * Created by jking31 on 11/15/16.
+ * This class reads in battles for a specific team id.
  */
 public class ReadInDataObj {
 

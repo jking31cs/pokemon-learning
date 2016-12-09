@@ -3,7 +3,7 @@ package com.jking31cs;
 import java.util.UUID;
 
 /**
- * Created by jking31 on 11/8/16.
+ * Used to ensure a unique uuid.
  */
 public class IdGenerator {
     public static String randomId() {

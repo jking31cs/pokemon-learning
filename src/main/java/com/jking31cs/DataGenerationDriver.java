@@ -15,7 +15,9 @@ import java.util.stream.Collectors;
 import static com.jking31cs.IdGenerator.randomId;
 
 /**
- * Created by jking31 on 11/8/16.
+ * Driver that gets called by the gradle task to generate data into the proper folders.
+ * This looks at the PokemonToAnalyze file in the data folder and generates battles for
+ * teams that meet the arguments passed in for the pokemon in the list.
  */
 public class DataGenerationDriver {
     public GeneratedData generatedData = new GeneratedData();

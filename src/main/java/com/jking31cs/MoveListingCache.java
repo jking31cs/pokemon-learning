@@ -10,7 +10,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Reads in the flat file into memory.
+ * Reads in the flat file containing moves in json format into memory.
  */
 public class MoveListingCache {
 

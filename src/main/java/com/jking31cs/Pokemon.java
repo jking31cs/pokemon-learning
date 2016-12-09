@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
- * Created by jking31cs on 10/11/16.
+ * Class that contains the meta data for a pokemon.
  */
 public class Pokemon {
     private final String name;

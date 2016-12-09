@@ -10,7 +10,8 @@ import com.jking31cs.state.BattleTree;
 import com.jking31cs.state.State;
 
 /**
- * Created by jking31 on 11/20/16.
+ * This actually looks at the specific set of pokemon whose teams we want to count the wins/losses for to determine
+ * the confidence.
  */
 public class PokemonWinAnalysis {
 

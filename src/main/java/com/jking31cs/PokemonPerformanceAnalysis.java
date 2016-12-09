@@ -11,11 +11,11 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
- * Created by Jessica on 11/17/2016.
+ * This looks at all the battles with specific pokemon on the team to determine the confidence that if the team wins
+ * if the team contains the set of pokemon.  The only argument is a number representing either 1 pokemon in the set, 2
+ * pokemon in the set, or all 3 pokemon on the team.
  */
 public class PokemonPerformanceAnalysis {
-
-    //TODO: figure out exact syntax for getting fields from ObjectMapper
 
     public static void main(String[] args) throws IOException {
 

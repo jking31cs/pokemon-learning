@@ -14,7 +14,8 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.jking31cs.state.Team;
 
 /**
- * Created by jking31 on 11/20/16.
+ * This class creates a pokemonTeamIndex so we can quickly determine which pokemon are on which teams for analytical
+ * purposes, writes it to the "output/indexes" folder.
  */
 public class TeamReader {
 

@@ -16,7 +16,10 @@ import com.jking31cs.state.TeamStatus;
 import static com.jking31cs.IdGenerator.randomId;
 
 /**
- * Testing BattleTree Idea.
+ * This class contains static methods that create a battle for 2 different teams.
+ * This includes all the damage logic and strategy of either dealing as much damage as
+ * possible with a move the pokemon can use or switching to a pokemon that will take the least
+ * amount of damage.
  */
 public class BattleTreeBuilder {
 

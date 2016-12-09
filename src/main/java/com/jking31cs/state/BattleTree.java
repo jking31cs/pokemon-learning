@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by jking31 on 11/1/16.
+ * Class that holds all the data for a specific battle between two teams.
  */
 public class BattleTree {
 

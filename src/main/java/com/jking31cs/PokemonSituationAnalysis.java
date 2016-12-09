@@ -15,7 +15,8 @@ import com.jking31cs.state.Edge;
 import com.jking31cs.state.State;
 
 /**
- * Created by May on 11/21/2016.
+ * Runs the next move analysis for a specific attacker and defender, returning which move to use and the confidence that
+ * using that move leads to a team win.
  */
 public class PokemonSituationAnalysis {
     private int temp;

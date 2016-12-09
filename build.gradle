@@ -48,7 +48,7 @@ task runMoveAnalysis (dependsOn: 'classes', type: JavaExec) {
 }
 
 task runNextMoveAnalysis (dependsOn: 'classes', type: JavaExec) {
-    main = 'com.jking31cs.PokemonAnalysis'
+    main = 'com.jking31cs.NextMoveAnalysis'
     classpath = sourceSets.main.runtimeClasspath
 }
 

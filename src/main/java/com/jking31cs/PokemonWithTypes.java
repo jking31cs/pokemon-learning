@@ -6,7 +6,7 @@ import com.google.common.base.Objects;
 import java.util.Set;
 
 /**
- * Created by jking31cs on 10/11/16.
+ * Class that holds the different types for a specific pokemon, whose meta data is an aggregate.
  */
 public class PokemonWithTypes {
     private final Pokemon pokemon;

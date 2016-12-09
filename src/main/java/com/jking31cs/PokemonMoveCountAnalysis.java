@@ -17,7 +17,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by jking31cs on 11/27/16.
+ * Analysis for determining the frequency of moves for each pokemon. This uses multiple threads to count the number of
+ * times each move a pokemon can use is used to determine which 4 moves are the most common. The output is written
+ * when the process dies or is complete, whichever comes first.
  */
 public class PokemonMoveCountAnalysis {
 

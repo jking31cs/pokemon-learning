@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by jking31cs on 12/6/16.
+ * Reads in the "PokemonToAnalyze" file and outputs a set of pokemon names.
  */
 public class GetPokemonToAnalyze {
 
